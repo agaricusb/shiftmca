@@ -12,6 +12,9 @@ import pymclevel
 
 import numpy
 
+RX_SHIFT = 20           # region x shift - 0,0 -> 20,0
+X_SHIFT = RX_SHIFT * 32 * 16
+
 root = "../bukkit/SERVER-beta-firstworld-anvil1.2.5/New World/region/renamed/"
 for filename in os.listdir(root):
     path = root + filename
@@ -20,7 +23,7 @@ for filename in os.listdir(root):
     _, new_rx, rz, _ = filename.split(".")
     new_rx = int(new_rx)
     rz = int(rz)
-    old_rx = new_rx - 20
+    old_rx = new_rx - RX_SHIFT
 
     print "Processing",(old_rx,rz),"->",(new_rx,rz)
 
@@ -64,16 +67,26 @@ for filename in os.listdir(root):
 
         return tag
 
-    def allChunks():
-        for cx, cz in itertools.product(range(32), range(32)):
-            chunk = readChunk(cx, cz)
+    for cx, cz in itertools.product(range(32), range(32)):
+        chunk = readChunk(cx, cz)
+        if chunk is None:
+            continue
+        print cx,cz,chunk
 
-            print cx,cz,chunk
+        # Global
+        chunk["Level"]["xPos"].value += X_SHIFT
 
-    print [allChunks()]
+        # Entities, Pos
+        entities = chunk["Level"]["Entities"]
+        print entities,len(entities)
+        for entity in entities:
+            entity["Pos"][0].value += X_SHIFT
 
-    #region = pymclevel.infiniteworld.MCRegionFile(path, (new_rx,rz))
-    #print region
-    #region.repair()
-    #region.close()
+        # TileEntities, x
+        tes = chunk["Level"]["TileEntities"]
+        for te in tes:
+            te["x"].value += X_SHIFT
+
+        print cx,cz,chunk
+
 
