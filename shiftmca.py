@@ -14,8 +14,9 @@ import pymclevel
 
 import numpy
 
-RX_SHIFT = 20           # region x shift - 0,0 -> 20,0
-X_SHIFT = RX_SHIFT * 32 * 16
+RX_SHIFT = 20               # region x coordinate eshift - 0,0 -> 20,0
+CX_SHIFT = RX_SHIFT * 32    # chunk x coordinate
+X_SHIFT = CX_SHIFT * 16     # world x coordinate
 
 root = "../bukkit/SERVER-beta-firstworld-anvil1.2.5/New World/region/renamed/"
 outroot = root + "../shifted/"
@@ -83,12 +84,13 @@ for filename in os.listdir(root):
         # Shift
 
         # Global
-        chunk["Level"]["xPos"].value += X_SHIFT
+        chunk["Level"]["xPos"].value += CX_SHIFT
 
         # Entities, Pos
         entities = chunk["Level"]["Entities"]
         for entity in entities:
             entity["Pos"][0].value += X_SHIFT
+            print entity
 
         # TileEntities, x
         tes = chunk["Level"]["TileEntities"]
