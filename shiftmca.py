@@ -90,6 +90,10 @@ for filename in os.listdir(root):
         entities = chunk["Level"]["Entities"]
         for entity in entities:
             entity["Pos"][0].value += X_SHIFT
+            try:
+                entity["TileX"].value += X_SHIFT    # paintings
+            except Exception:
+                pass
             print entity
 
         # TileEntities, x
