@@ -1,4 +1,6 @@
 
+from cStringIO import StringIO
+import gzip
 import itertools
 import zlib
 import os
@@ -16,6 +18,7 @@ RX_SHIFT = 20           # region x shift - 0,0 -> 20,0
 X_SHIFT = RX_SHIFT * 32 * 16
 
 root = "../bukkit/SERVER-beta-firstworld-anvil1.2.5/New World/region/renamed/"
+outroot = root + "../shifted/"
 for filename in os.listdir(root):
     path = root + filename
     
@@ -51,7 +54,7 @@ for filename in os.listdir(root):
     def readChunk(cx, cz):
         rawData = readChunkRaw(cx, cz)
         if rawData is None:
-            print "No chunk ",cx,cz
+            #print "No chunk ",cx,cz
             return None
         length = struct.unpack_from(">I", rawData)[0]
         compressionFormat = struct.unpack_from("B", rawData, 4)[0]
@@ -67,18 +70,22 @@ for filename in os.listdir(root):
 
         return tag
 
+    newChunks = []
+
+    currentSector = 2
+
     for cx, cz in itertools.product(range(32), range(32)):
         chunk = readChunk(cx, cz)
         if chunk is None:
             continue
-        print cx,cz,chunk
+
+        # Shift
 
         # Global
         chunk["Level"]["xPos"].value += X_SHIFT
 
         # Entities, Pos
         entities = chunk["Level"]["Entities"]
-        print entities,len(entities)
         for entity in entities:
             entity["Pos"][0].value += X_SHIFT
 
@@ -87,6 +94,27 @@ for filename in os.listdir(root):
         for te in tes:
             te["x"].value += X_SHIFT
 
-        print cx,cz,chunk
 
+        # Save
 
+        buf = StringIO()
+        chunk.save(buf=gzip.GzipFile(fileobj=buf, mode="wb", compresslevel=2))
+        data = buf.getvalue()
+
+        #print cx,cz,chunk
+        CHUNK_HEADER_SIZE = 5
+        sectorsNeeded = (len(data) + CHUNK_HEADER_SIZE) / SECTOR_BYTES + 1
+        offsets[cx + cz * 32] = currentSector << 8 | sectorsNeeded
+        currentSector += sectorsNeeded
+
+        newChunks.append(data)
+
+    of = file(outroot + filename, "wb")
+    of.write(offsets.tostring())
+    of.write(modtimes.tostring())
+    for chunkData in newChunks:
+        of.write(chunkData)
+
+    of.close()
+
+        
