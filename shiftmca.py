@@ -1,3 +1,20 @@
+# shiftmca.py - shift Minecraft region files (.mca) by a fixed number of regions
+
+# Useful to combine multiple worlds into one world, with a region-level granularity
+# You can't simply rename the r.#.#.mca files, because they contain embedded location
+# information (which will cause "relocating" errors). This script fixes that.
+
+# To use:
+# 1. rename each r.<x>.<z>.mca adding 20 (or whatever needed to avoid overlap) to each <x>
+# 2. edit the variables below appropriately to match your setup
+# 3. run this script
+# 4. copy the new outputted .mca files to your second world you want to merge into
+#  (no files should be overwritten if shifted by the correct amount)
+# 5. load the world and teleport to 10240,0,0; it should load without errors
+
+# You now have a single unified merged world.
+
+# Requires pymclevel - https://github.com/mcedit/pymclevel
 
 from cStringIO import StringIO
 import gzip
@@ -14,12 +31,17 @@ import pymclevel
 
 import numpy
 
+# amount to shift X - must be a whole number of regions
 RX_SHIFT = 20               # region x coordinate eshift - 0,0 -> 20,0
 CX_SHIFT = RX_SHIFT * 32    # chunk x coordinate
 X_SHIFT = CX_SHIFT * 16     # world x coordinate
+# TODO: option to shift Z
 
+# pre-renamed region files (r.0.0.mca renamed to r.20.0.mca) (TODO: rename in this script)
 root = "../bukkit/SERVER-beta-firstworld-anvil1.2.5/New World/region/renamed/"
+# output directory
 outroot = root + "../shifted/"
+
 for filename in os.listdir(root):
     path = root + filename
     
