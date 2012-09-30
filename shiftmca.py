@@ -1,4 +1,5 @@
 
+import os
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -7,11 +8,19 @@ sys.path.append("..")
 import pymclevel
 
 root = "../bukkit/SERVER-beta-firstworld-anvil1.2.5/New World/region/renamed/"
-filename = root + "r.20.0.mca"
+for filename in os.listdir(root):
+    path = root + filename
+    
+    print filename
+    _, new_rx, rz, _ = filename.split(".")
+    new_rx = int(new_rx)
+    rz = int(rz)
+    old_rx = new_rx - 20
 
-region = pymclevel.infiniteworld.MCRegionFile(filename, (20, 0))
-#region.extractAllChunks("/tmp/2")
-print region
-region.repair()
-region.close()
+    print "Processing",(old_rx,rz),"->",(new_rx,rz)
+
+    region = pymclevel.infiniteworld.MCRegionFile(path, (new_rx,rz))
+    print region
+    region.repair()
+    region.close()
 
