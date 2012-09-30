@@ -104,6 +104,11 @@ for filename in os.listdir(root):
         #print cx,cz,chunk
         CHUNK_HEADER_SIZE = 5
         sectorsNeeded = (len(data) + CHUNK_HEADER_SIZE) / SECTOR_BYTES + 1
+
+        bytesNeeded = sectorsNeeded * SECTOR_BYTES
+        excess = bytesNeeded - len(data)
+        data += "\0" * excess
+
         offsets[cx + cz * 32] = currentSector << 8 | sectorsNeeded
         currentSector += sectorsNeeded
 
