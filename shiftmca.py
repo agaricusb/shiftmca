@@ -51,6 +51,9 @@ for filename in os.listdir(root):
             return None
         return data
 
+    VERSION_GZIP = 1
+    VERSION_DEFLATE = 2
+
     def readChunk(cx, cz):
         rawData = readChunkRaw(cx, cz)
         if rawData is None:
@@ -59,8 +62,6 @@ for filename in os.listdir(root):
         length = struct.unpack_from(">I", rawData)[0]
         compressionFormat = struct.unpack_from("B", rawData, 4)[0]
         compressedData = rawData[5:length + 5]
-        VERSION_GZIP = 1
-        VERSION_DEFLATE = 2
         if compressionFormat == VERSION_GZIP:
             tag = pymclevel.nbt.load(buf=pymclevel.nbt.gunzip(compressedData))
         elif compressionFormat == VERSION_DEFLATE:
@@ -100,6 +101,11 @@ for filename in os.listdir(root):
         buf = StringIO()
         chunk.save(buf=gzip.GzipFile(fileobj=buf, mode="wb", compresslevel=2))
         data = buf.getvalue()
+
+        length = len(data)
+        header = struct.pack(">I", length)
+        header += struct.pack("B", VERSION_GZIP)
+        data = header + data
 
         #print cx,cz,chunk
         CHUNK_HEADER_SIZE = 5
