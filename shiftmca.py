@@ -6,6 +6,8 @@
 
 # To use:
 # 1. rename each r.<x>.<z>.mca adding 20 (or whatever needed to avoid overlap) to each <x>
+#mkdir renamed-renamed
+#ls region-converted/*.mca|perl -pe'chomp;m/r\.([-\d]+)\.([-\d]+)\.mca/;$b="r.@{[ $1 + 41 ]}.$2.mca";$_="cp $_ region-renamed/$b\n"'
 # 2. edit the variables below appropriately to match your setup
 # 3. run this script
 # 4. copy the new outputted .mca files to your second world you want to merge into
@@ -32,17 +34,22 @@ import pymclevel
 import numpy
 
 # amount to shift X - must be a whole number of regions
-RX_SHIFT = 20               # region x coordinate eshift - 0,0 -> 20,0
+#RX_SHIFT = 20               # region x coordinate eshift - 0,0 -> 20,0
+RX_SHIFT = 41               # region x coordinate eshift - 0,0 -> 41,0
 CX_SHIFT = RX_SHIFT * 32    # chunk x coordinate
 X_SHIFT = CX_SHIFT * 16     # world x coordinate
 # TODO: option to shift Z
 
 # pre-renamed region files (r.0.0.mca renamed to r.20.0.mca) (TODO: rename in this script)
-root = "../bukkit/SERVER-beta-firstworld-anvil1.2.5/New World/region/renamed/"
+#root = "../bukkit/SERVER-beta-firstworld-anvil1.2.5/New World/region/renamed/"
+#root = "../1710/hcsmp_restored/world/region/renamed/"
 # output directory
-outroot = root + "../shifted/"
+#outroot = root + "../shifted/"
+root    = "../1710/hcsmp_restored/world/region-renamed/"
+outroot = "../1710/hcsmp_restored/world/region-shifted/"
 
 for filename in os.listdir(root):
+#for filename in ["r.38.16.mca"]:
     path = root + filename
     
     print filename
@@ -116,7 +123,7 @@ for filename in os.listdir(root):
                 entity["TileX"].value += X_SHIFT    # paintings
             except Exception:
                 pass
-            print entity
+            #print entity
 
         # TileEntities, x
         tes = chunk["Level"]["TileEntities"]
@@ -126,13 +133,16 @@ for filename in os.listdir(root):
 
         # Save
 
-        buf = StringIO()
-        chunk.save(buf=gzip.GzipFile(fileobj=buf, mode="wb", compresslevel=2))
-        data = buf.getvalue()
+        #buf = StringIO()
+        #chunk.save(filename_or_buf=gzip.GzipFile(fileobj=buf, mode="wb", compresslevel=2))
+        #chunk.save(filename_or_buf=buf, compressed=True)
+        #data = zlib.compress(buf.getvalue(), 2)
+        data = chunk.save(filename_or_buf=None, compressed=False)
+        data = zlib.compress(data, 2)
 
         length = len(data)
         header = struct.pack(">I", length)
-        header += struct.pack("B", VERSION_GZIP)
+        header += struct.pack("B", VERSION_DEFLATE)
         data = header + data
 
         #print cx,cz,chunk
