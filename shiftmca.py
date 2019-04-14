@@ -8,6 +8,7 @@
 # 1. rename each r.<x>.<z>.mca adding 20 (or whatever needed to avoid overlap) to each <x>
 #mkdir renamed-renamed
 #ls region-converted/*.mca|perl -pe'chomp;m/r\.([-\d]+)\.([-\d]+)\.mca/;$b="r.@{[ $1 + 41 ]}.$2.mca";$_="cp $_ region-renamed/$b\n"'
+#ls region-converted/*.mca|perl -pe'chomp;m/r\.([-\d]+)\.([-\d]+)\.mca/;$b="r.@{[ $1 - 50 ]}.$2.mca";$_="cp $_ region-renamed/$b\n"'
 # 2. edit the variables below appropriately to match your setup
 # 3. run this script
 # 4. copy the new outputted .mca files to your second world you want to merge into
@@ -35,7 +36,8 @@ import numpy
 
 # amount to shift X - must be a whole number of regions
 #RX_SHIFT = 20               # region x coordinate eshift - 0,0 -> 20,0
-RX_SHIFT = 41               # region x coordinate eshift - 0,0 -> 41,0
+#RX_SHIFT = 41               # region x coordinate eshift - 0,0 -> 41,0
+RX_SHIFT = -50               # region x coordinate eshift - 0,0 -> -50,0
 CX_SHIFT = RX_SHIFT * 32    # chunk x coordinate
 X_SHIFT = CX_SHIFT * 16     # world x coordinate
 # TODO: option to shift Z
@@ -45,8 +47,11 @@ X_SHIFT = CX_SHIFT * 16     # world x coordinate
 #root = "../1710/hcsmp_restored/world/region/renamed/"
 # output directory
 #outroot = root + "../shifted/"
-root    = "../1710/hcsmp_restored/world/region-renamed/"
-outroot = "../1710/hcsmp_restored/world/region-shifted/"
+#root    = "../1710/hcsmp_restored/world/region-renamed/"
+#outroot = "../1710/hcsmp_restored/world/region-shifted/"
+root    = "../1710/modpack/staging-server/world/region-renamed/"
+outroot = "../1710/modpack/staging-server/world/region-shifted/"
+
 
 for filename in os.listdir(root):
 #for filename in ["r.38.16.mca"]:
